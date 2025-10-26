@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # LeapCode CLI 快速啟動腳本 (Monorepo Version)
-# 使用方式: ./quick-start.sh [gemini|claude|codex]
+# 使用方式: ./quick-start.sh [gemini]
+# 注意: claude 和 codex 目前為規劃中功能
 
 set -e
 
@@ -58,24 +59,14 @@ case $AI_TOOL in
         fi
         ;;
     claude)
-        if [ -z "$ANTHROPIC_API_KEY" ]; then
-            echo -e "${YELLOW}⚠️  未設置 ANTHROPIC_API_KEY 環境變數${NC}"
-            echo -e "${YELLOW}   請使用: export ANTHROPIC_API_KEY=\"your-key\"${NC}"
-            echo ""
-        else
-            echo -e "${GREEN}✅ ANTHROPIC_API_KEY 已設置${NC}"
-            echo ""
-        fi
+        echo -e "${YELLOW}⚠️  Claude Code wrapper 目前為規劃中功能${NC}"
+        echo -e "${YELLOW}   將在未來版本提供${NC}"
+        exit 0
         ;;
     codex)
-        if [ -z "$OPENAI_API_KEY" ]; then
-            echo -e "${YELLOW}⚠️  未設置 OPENAI_API_KEY 環境變數${NC}"
-            echo -e "${YELLOW}   請使用: export OPENAI_API_KEY=\"your-key\"${NC}"
-            echo ""
-        else
-            echo -e "${GREEN}✅ OPENAI_API_KEY 已設置${NC}"
-            echo ""
-        fi
+        echo -e "${YELLOW}⚠️  Codex wrapper 目前為規劃中功能${NC}"
+        echo -e "${YELLOW}   將在未來版本提供${NC}"
+        exit 0
         ;;
 esac
 

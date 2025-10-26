@@ -1,9 +1,11 @@
 # @jimmyliao/leapcode
 
-**Multi-AI Coding CLI Wrapper** - Main CLI package
+**Multi-AI Coding CLI Wrapper** - Currently supports Gemini CLI
 
 [![npm version](https://img.shields.io/npm/v/@jimmyliao/leapcode.svg)](https://www.npmjs.com/package/@jimmyliao/leapcode)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](../../LICENSE)
+
+**English** | [繁體中文](README.zh-TW.md)
 
 ---
 
@@ -23,25 +25,23 @@ npx @jimmyliao/leapcode gemini
 
 ## 📖 Usage
 
-### Gemini CLI
+### Gemini CLI (✅ Available)
 
 ```bash
 export GEMINI_API_KEY="your-api-key"
 leapcode gemini
 ```
 
-### Claude Code
+### Claude Code (📋 Planned)
 
 ```bash
-export ANTHROPIC_API_KEY="your-api-key"
-leapcode claude
+# Coming in future release
 ```
 
-### Codex
+### Codex (📋 Planned)
 
 ```bash
-export OPENAI_API_KEY="your-api-key"
-leapcode codex
+# Coming in future release
 ```
 
 ---

@@ -50,7 +50,9 @@ async function runPrerequisiteChecks(): Promise<void> {
   // Check Node.js version
   const nodeVersion = process.version;
   const requiredNodeVersion = 'v18.0.0'; // As per README.md
-  if (nodeVersion < requiredNodeVersion) {
+  const nodeMajor = parseInt(nodeVersion.slice(1).split('.')[0]);
+  const requiredNodeMajor = parseInt(requiredNodeVersion.slice(1).split('.')[0]);
+  if (nodeMajor < requiredNodeMajor) {
     console.log(chalk.red(`\n❌ Node.js version ${nodeVersion} is too old.`));
     console.log(chalk.yellow(`Please upgrade to Node.js ${requiredNodeVersion} or higher.`));
     process.exit(1);
@@ -61,7 +63,9 @@ async function runPrerequisiteChecks(): Promise<void> {
   try {
     const npmVersion = require('child_process').execSync('npm --version', { encoding: 'utf-8' }).trim();
     const requiredNpmVersion = '9.0.0'; // As per README.md
-    if (npmVersion < requiredNpmVersion) {
+    const npmMajor = parseInt(npmVersion.split('.')[0]);
+    const requiredNpmMajor = parseInt(requiredNpmVersion.split('.')[0]);
+    if (npmMajor < requiredNpmMajor) {
       console.log(chalk.red(`\n❌ npm version ${npmVersion} is too old.`));
       console.log(chalk.yellow(`Please upgrade to npm ${requiredNpmVersion} or higher.`));
       process.exit(1);
@@ -83,7 +87,7 @@ program
 
 // Main command - start Gemini CLI (default)
 program
-  .argument('[aiTool]', 'AI tool to wrap (gemini|claude|codex)', 'gemini')
+  .argument('[aiTool]', 'AI tool to wrap (currently: gemini | planned: claude, codex)', 'gemini')
   .option('-s, --server <url>', 'LeapCode server URL')
   .option('--offline', 'Run without mobile sync')
   .option('--api-key <key>', 'AI API key (or use environment variable)')
@@ -131,67 +135,25 @@ program
           break;
 
         case 'claude':
-          console.log(chalk.blue('Starting Claude Code wrapper...'));
-          const claudeApiKey = getApiKey('claude', options.apiKey, 'ANTHROPIC_API_KEY');
-          if (!claudeApiKey) {
-            console.log(chalk.red('\n❌ Claude API key is missing.'));
-            console.log(chalk.yellow('Please set it via --api-key option, ANTHROPIC_API_KEY environment variable, or `leapcode config set claude.apiKey <key>`.'));
-            process.exit(1);
-          }
-          const claudeWrapper = new ClaudeWrapper({
-            ...config,
-            apiKey: claudeApiKey,
-          });
-
-          // Check installation
-          const claudeInstalled = await claudeWrapper.isInstalled();
-          if (!claudeInstalled) {
-            console.log(chalk.red('\n❌ Claude Code is not installed'));
-            console.log(chalk.yellow('\nInstall it from:'));
-            console.log(chalk.cyan('  https://claude.ai/code'));
-            process.exit(1);
-          }
-
-          // Get version
-          const claudeVersion = await claudeWrapper.getVersion();
-          console.log(chalk.gray(`   Claude Code version: ${claudeVersion}`));
-
-          // Start wrapper
-          await claudeWrapper.start();
+          console.log(chalk.yellow('⚠️  Claude Code wrapper is currently in planning stage'));
+          console.log(chalk.gray('   This feature will be available in a future release.'));
+          console.log(chalk.cyan('\n   Currently available: gemini'));
+          console.log(chalk.gray('   Planned: claude, codex'));
+          process.exit(0);
           break;
 
         case 'codex':
-          console.log(chalk.magenta('Starting Codex wrapper...'));
-          const codexApiKey = getApiKey('codex', options.apiKey, 'OPENAI_API_KEY');
-          if (!codexApiKey) {
-            console.log(chalk.red('\n❌ Codex API key is missing.'));
-            console.log(chalk.yellow('Please set it via --api-key option, OPENAI_API_KEY environment variable, or `leapcode config set codex.apiKey <key>`.'));
-            process.exit(1);
-          }
-          const codexWrapper = new CodexWrapper({
-            ...config,
-            apiKey: codexApiKey,
-          });
-
-          // Check installation
-          const codexInstalled = await codexWrapper.isInstalled();
-          if (!codexInstalled) {
-            console.log(chalk.red('\n❌ Codex is not installed'));
-            console.log(chalk.yellow('\nInstall OpenAI CLI or Codex wrapper'));
-            process.exit(1);
-          }
-
-          // Get version
-          const codexVersion = await codexWrapper.getVersion();
-          console.log(chalk.gray(`   Codex version: ${codexVersion}`));
-
-          // Start wrapper
-          await codexWrapper.start();
+          console.log(chalk.yellow('⚠️  Codex wrapper is currently in planning stage'));
+          console.log(chalk.gray('   This feature will be available in a future release.'));
+          console.log(chalk.cyan('\n   Currently available: gemini'));
+          console.log(chalk.gray('   Planned: claude, codex'));
+          process.exit(0);
           break;
 
         default:
-          console.log(chalk.red(`Unknown AI tool: ${aiTool}`));
-          console.log(chalk.yellow('Supported: gemini, claude, codex'));
+          console.log(chalk.red(`❌ Unknown AI tool: ${aiTool}`));
+          console.log(chalk.cyan('\n   Currently available: gemini'));
+          console.log(chalk.gray('   Planned: claude, codex'));
           process.exit(1);
       }
     } catch (error) {

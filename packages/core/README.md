@@ -5,6 +5,8 @@
 [![npm version](https://img.shields.io/npm/v/@jimmyliao/leapcode-core.svg)](https://www.npmjs.com/package/@jimmyliao/leapcode-core)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](../../LICENSE)
 
+**English** | [繁體中文](README.zh-TW.md)
+
 ---
 
 ## 📖 Description

@@ -1,10 +1,12 @@
 # LeapCode
 
-**Multi-AI Coding CLI Wrapper** - Connect Gemini, Claude Code, and Codex from anywhere
+**Multi-AI Coding CLI Wrapper** - Currently supports Gemini CLI (Claude Code & Codex planned)
 
 [![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)](https://github.com/jimmyliao/leapcode)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org)
+
+**English** | [繁體中文](README.zh-TW.md)
 
 ---
 
@@ -19,24 +21,29 @@ npm install -g @jimmyliao/leapcode
 ### Usage
 
 ```bash
-# Gemini CLI (default)
+# Gemini CLI (✅ Available)
 export GEMINI_API_KEY="your-api-key"
 leapcode gemini
 
-# Claude Code
-export ANTHROPIC_API_KEY="your-api-key"
-leapcode claude
+# Claude Code (📋 Planned)
+# Coming soon...
 
-# Codex
-export OPENAI_API_KEY="your-api-key"
-leapcode codex
+# Codex (📋 Planned)
+# Coming soon...
 ```
 
 ---
 
 ## 📖 What is LeapCode?
 
-LeapCode wraps popular AI coding tools (Gemini CLI, Claude Code, Codex) to provide:
+LeapCode wraps popular AI coding tools to provide unified interface and enhanced features.
+
+**Current Status:**
+- ✅ **Gemini CLI** - Fully supported
+- 📋 **Claude Code** - Planned for future release
+- 📋 **Codex** - Planned for future release
+
+**Features:**
 
 - ✅ **Unified Interface**: One CLI for all AI tools
 - ✅ **I/O Interception**: Capture and sync AI interactions
@@ -161,9 +168,11 @@ leapcode config list
 
 ```bash
 # AI API Keys
-export GEMINI_API_KEY="your-gemini-api-key"
-export ANTHROPIC_API_KEY="your-anthropic-api-key"
-export OPENAI_API_KEY="your-openai-api-key"
+export GEMINI_API_KEY="your-gemini-api-key"  # ✅ Currently supported
+
+# Planned for future releases:
+# export ANTHROPIC_API_KEY="your-anthropic-api-key"  # 📋 Planned
+# export OPENAI_API_KEY="your-openai-api-key"        # 📋 Planned
 
 # Optional: Server URL
 export LEAPCODE_SERVER="https://api.leapcode.dev"
