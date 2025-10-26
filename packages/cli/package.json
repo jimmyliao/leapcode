@@ -1,0 +1,57 @@
+{
+  "name": "@jimmyliao/leapcode",
+  "version": "0.2.0",
+  "description": "Multi-AI coding CLI wrapper - Connect Gemini, Claude Code, and Codex from anywhere",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "leapcode": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/cli.js",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "ai",
+    "coding",
+    "gemini",
+    "claude",
+    "codex",
+    "cli",
+    "wrapper",
+    "mobile",
+    "remote"
+  ],
+  "author": "Jimmy Liao <jimmyliao@jimmyliao.net>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jimmyliao/leapcode.git",
+    "directory": "packages/cli"
+  },
+  "bugs": {
+    "url": "https://github.com/jimmyliao/leapcode/issues"
+  },
+  "homepage": "https://github.com/jimmyliao/leapcode#readme",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@jimmyliao/leapcode-core": "*",
+    "commander": "^12.0.0",
+    "chalk": "^5.3.0",
+    "dotenv": "^16.4.0"
+  },
+  "optionalDependencies": {
+    "@jimmyliao/leapcode-sync": "*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.3.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

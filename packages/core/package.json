@@ -1,0 +1,32 @@
+{
+  "name": "@jimmyliao/leapcode-core",
+  "version": "0.2.0",
+  "description": "LeapCode Core - Shared types and utilities",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "leapcode",
+    "core",
+    "types",
+    "utilities"
+  ],
+  "author": "Jimmy Liao <jimmyliao@jimmyliao.net>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jimmyliao/leapcode.git",
+    "directory": "packages/core"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.3.0"
+  }
+}
