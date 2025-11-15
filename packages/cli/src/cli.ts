@@ -89,7 +89,7 @@ program
 
 // Main command - start interactive mode or wrap an AI tool
 program
-  .argument('[command]', 'AI tool to wrap (gemini, claude, codex). If omitted, starts interactive mode.', 'interactive')
+  .argument('[command]', 'AI tool to wrap (gemini, claude, codex). If omitted, starts Gemini by default.', 'gemini')
   .option('-s, --server <url>', 'LeapCode server URL')
   .option('--offline', 'Run without mobile sync')
   .option('--api-key <key>', 'AI API key (or use environment variable)')
