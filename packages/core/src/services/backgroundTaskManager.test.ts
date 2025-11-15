@@ -417,7 +417,7 @@ describe('BackgroundTaskManager', () => {
 
       // Should eventually call SIGKILL
       const killCalls = killSpy.mock.calls;
-      const hasSigkill = killCalls.some((call: [number, string | number | undefined]) => call[1] === 'SIGKILL');
+      const hasSigkill = killCalls.some((call: [number, (string | number)?]) => call[1] === 'SIGKILL');
       expect(hasSigkill).toBe(true);
 
       killSpy.mockRestore();
