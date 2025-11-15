@@ -4,7 +4,7 @@
  * Wraps the Gemini CLI tool for LeapCode integration
  * Based on analysis from Gemini CLI structure analysis
  *
- * @author LeapDesign (躍智)
+ * @author LeapDesign (躍智)  
  * @license MIT
  */
 
@@ -12,6 +12,14 @@ import { spawn, ChildProcess } from 'child_process';
 import { BaseWrapper, WrapperConfig } from './base';
 import { execSync } from 'child_process';
 import { getApiSocket } from '../sync/apiSocket';
+import {
+  getBackgroundTaskManager,
+  BackgroundTaskManager,
+  ShellExecutionAdapter,
+  BackgroundTask,
+} from '@jimmyliao/leapcode-core';
+import chalk from 'chalk';
+import { checkGeminiCliVersion } from '@jimmyliao/leapcode-core';
 
 export interface GeminiConfig extends WrapperConfig {
   apiKey?: string;
@@ -22,10 +30,13 @@ export interface GeminiConfig extends WrapperConfig {
 export class GeminiWrapper extends BaseWrapper {
   private geminiProcess?: ChildProcess;
   private geminiConfig: GeminiConfig;
+  private backgroundTaskManager: BackgroundTaskManager;
+  private isBackgroundTaskSupported = false;
 
   constructor(config: GeminiConfig) {
     super(config);
     this.geminiConfig = config;
+    this.backgroundTaskManager = getBackgroundTaskManager();
   }
 
   /**
@@ -53,6 +64,60 @@ export class GeminiWrapper extends BaseWrapper {
   }
 
   /**
+   * Check if installed Gemini CLI supports background tasks
+   */
+  async checkFeatureSupport(): Promise<void> {
+    const version = await this.getVersion();
+    if (version) {
+      const { supported, requiredVersion } = await checkGeminiCliVersion(
+        version,
+      );
+      this.isBackgroundTaskSupported = supported;
+
+      if (supported) {
+        console.log(
+          chalk.gray(
+            `   Background tasks feature is supported (requires gemini-cli >= v${requiredVersion}).`,
+          ),
+        );
+      } else {
+        console.log(
+          chalk.yellow(
+            `   Warning: gemini-cli version (${version}) is too old for background tasks (requires >= v${requiredVersion}).`,
+          ),
+        );
+        console.log(
+          chalk.yellow(
+            '   Background shell commands will not be available. Please upgrade gemini-cli.',
+          ),
+        );
+      }
+    }
+  }
+
+  /**
+   * Run a shell command in the background
+   * @param command The command to execute
+   * @param cwd The working directory
+   * @returns The background task object
+   */
+  private async runInBackground(
+    command: string,
+    cwd: string,
+  ): Promise<BackgroundTask> {
+    const process = spawn(command, {
+      shell: true,
+      cwd,
+      detached: true, // To run independently of the parent
+    });
+
+    const adapter = new ShellExecutionAdapter(process);
+    const task = this.backgroundTaskManager.registerTask(command, cwd, adapter);
+
+    return task;
+  }
+
+  /**
    * Start Gemini CLI in interactive mode
    */
   async start(): Promise<void> {
@@ -60,13 +125,15 @@ export class GeminiWrapper extends BaseWrapper {
     const installed = await this.isInstalled();
     if (!installed) {
       throw new Error(
-        'Gemini CLI is not installed. Please install it with: npm install -g @google/gemini-cli'
+        'Gemini CLI is not installed. Please install it with: npm install -g @google/gemini-cli',
       );
     }
 
     // Get version info
     const version = await this.getVersion();
     console.log(`Starting Gemini CLI ${version || 'unknown version'}...`);
+
+    await this.checkFeatureSupport();
 
     // Build command args
     const args = this.getCommand();
@@ -80,8 +147,14 @@ export class GeminiWrapper extends BaseWrapper {
     // Spawn Gemini CLI process
     this.geminiProcess = spawn('gemini', args, {
       env,
-      stdio: ['inherit', 'pipe', 'pipe'], // stdin: inherit, stdout/stderr: pipe
+      stdio: ['pipe', 'pipe', 'pipe'], // stdin, stdout, stderr all piped
     });
+
+    // Proxy stdin to the child process
+    const stdinHandler = (data: Buffer) => {
+      this.geminiProcess?.stdin?.write(data);
+    };
+    process.stdin.on('data', stdinHandler);
 
     // Setup I/O handlers
     this.setupIOHandlers();
@@ -94,6 +167,7 @@ export class GeminiWrapper extends BaseWrapper {
 
     this.geminiProcess.on('exit', (code, signal) => {
       console.log(`Gemini CLI exited with code ${code} and signal ${signal}`);
+      process.stdin.removeListener('data', stdinHandler);
     });
   }
 
@@ -106,14 +180,44 @@ export class GeminiWrapper extends BaseWrapper {
     // Handle stdout
     this.geminiProcess.stdout?.on('data', (data: Buffer) => {
       const output = data.toString();
+      let isBackgroundTaskRequest = false;
 
-      // TODO: Sync to server if not offline
-      if (!this.config.offline) {
-        this.syncOutput(output);
+      if (this.isBackgroundTaskSupported) {
+        try {
+          const jsonOutput = JSON.parse(output);
+          if (
+            jsonOutput.type === 'tool_code' &&
+            jsonOutput.data?.tool_name === 'run_shell_command' &&
+            jsonOutput.data?.run_in_background === true
+          ) {
+            isBackgroundTaskRequest = true;
+            const { command, dir_path } = jsonOutput.data;
+            this.runInBackground(command, dir_path || process.cwd()).then(
+              (task) => {
+                const response = {
+                  type: 'tool_result',
+                  tool_name: 'run_shell_command',
+                  shell_id: task.id,
+                  pid: task.pid,
+                  output: `Background task started with ID: ${task.id} and PID: ${task.pid}`,
+                };
+                this.geminiProcess?.stdin?.write(
+                  JSON.stringify(response) + '\n',
+                );
+              },
+            );
+          }
+        } catch (e) {
+          // Not a JSON object, treat as regular output
+        }
       }
 
-      // Echo to local stdout
-      process.stdout.write(output);
+      if (!isBackgroundTaskRequest) {
+        if (!this.config.offline) {
+          this.syncOutput(output);
+        }
+        process.stdout.write(output);
+      }
     });
 
     // Handle stderr
@@ -216,7 +320,7 @@ export class GeminiWrapper extends BaseWrapper {
         {
           env,
           stdio: ['pipe', 'pipe', 'pipe'],
-        }
+        },
       );
 
       let stdoutData = '';
@@ -243,8 +347,8 @@ export class GeminiWrapper extends BaseWrapper {
         } else {
           reject(
             new Error(
-              `Gemini CLI exited with code ${code}. Stderr: ${stderrData}`
-            )
+              `Gemini CLI exited with code ${code}. Stderr: ${stderrData}`,
+            ),
           );
         }
       });
