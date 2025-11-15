@@ -5,12 +5,13 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
+import type { ChildProcess } from 'child_process';
 import {
   BackgroundTaskManager,
   getBackgroundTaskManager,
   resetBackgroundTaskManager,
 } from './backgroundTaskManager.js';
-import type { ShellExecutionHandle } from './shellExecutionService.js';
+import type { ShellExecutionHandle, ShellExecutionResult } from './shellExecutionService.js';
 
 describe('BackgroundTaskManager', () => {
   let manager: BackgroundTaskManager;
@@ -28,18 +29,19 @@ describe('BackgroundTaskManager', () => {
   });
 
   describe('registerTask', () => {
+    it('should register a new task with unique ID', () => {
+      const mockResult: ShellExecutionResult = {
+        output: '',
+        exitCode: 0,
+        signal: null,
+        error: undefined,
+        aborted: false,
+      };
       const mockHandle: ShellExecutionHandle = {
         pid: 12345,
-        process: null,
-        kill: jest.fn(),
-        result: Promise.resolve({
-          output: '',
-          exitCode: 0,
-          signal: null,
-          error: undefined,
-          aborted: false,
-          pid: 12345,
-        }),
+        process: {} as ChildProcess,
+        kill: jest.fn(() => Promise.resolve()),
+        result: Promise.resolve(mockResult),
       };
 
       const task = manager.registerTask('echo test', '/tmp', mockHandle);
@@ -53,32 +55,33 @@ describe('BackgroundTaskManager', () => {
       expect(task.lastReadPosition).toBe(0);
     });
 
+    it('should generate unique task IDs', () => {
+      const mockResult1: ShellExecutionResult = {
+        output: '',
+        exitCode: 0,
+        signal: null,
+        error: undefined,
+        aborted: false,
+      };
       const mockHandle1: ShellExecutionHandle = {
         pid: 111,
-        process: null,
-        kill: jest.fn(),
-        result: Promise.resolve({
-          output: '',
-          exitCode: 0,
-          signal: null,
-          error: undefined,
-          aborted: false,
-          pid: 111,
-        }),
+        process: {} as ChildProcess,
+        kill: jest.fn(() => Promise.resolve()),
+        result: Promise.resolve(mockResult1),
       };
 
+      const mockResult2: ShellExecutionResult = {
+        output: '',
+        exitCode: 0,
+        signal: null,
+        error: undefined,
+        aborted: false,
+      };
       const mockHandle2: ShellExecutionHandle = {
         pid: 222,
-        result: Promise.resolve({
-          rawOutput: Buffer.from(''),
-          output: '',
-          exitCode: 0,
-          signal: null,
-          error: null,
-          aborted: false,
-          pid: 222,
-          executionMethod: 'child_process',
-        }),
+        process: {} as ChildProcess,
+        kill: jest.fn(() => Promise.resolve()),
+        result: Promise.resolve(mockResult2),
       };
 
       const task1 = manager.registerTask('cmd1', '/tmp', mockHandle1);
@@ -92,24 +95,26 @@ describe('BackgroundTaskManager', () => {
       for (let i = 0; i < 5; i++) {
         const mockHandle: ShellExecutionHandle = {
           pid: 1000 + i,
+          process: {} as ChildProcess,
+          kill: jest.fn(() => Promise.resolve()),
           result: new Promise(() => {}), // Never resolves
         };
         manager.registerTask(`cmd${i}`, '/tmp', mockHandle);
       }
 
       // Try to register 6th task
+      const mockResult: ShellExecutionResult = {
+        output: '',
+        exitCode: 0,
+        signal: null,
+        error: undefined,
+        aborted: false,
+      };
       const mockHandle: ShellExecutionHandle = {
         pid: 9999,
-        result: Promise.resolve({
-          rawOutput: Buffer.from(''),
-          output: '',
-          exitCode: 0,
-          signal: null,
-          error: null,
-          aborted: false,
-          pid: 9999,
-          executionMethod: 'child_process',
-        }),
+        process: {} as ChildProcess,
+        kill: jest.fn(() => Promise.resolve()),
+        result: Promise.resolve(mockResult),
       };
 
       expect(() => {
@@ -118,18 +123,18 @@ describe('BackgroundTaskManager', () => {
     });
 
     it('should update task status when command completes successfully', async () => {
+      const mockResult: ShellExecutionResult = {
+        output: 'test output',
+        exitCode: 0,
+        signal: null,
+        error: undefined,
+        aborted: false,
+      };
       const mockHandle: ShellExecutionHandle = {
         pid: 12345,
-        result: Promise.resolve({
-          rawOutput: Buffer.from('test output'),
-          output: 'test output',
-          exitCode: 0,
-          signal: null,
-          error: null,
-          aborted: false,
-          pid: 12345,
-          executionMethod: 'child_process',
-        }),
+        process: {} as ChildProcess,
+        kill: jest.fn(() => Promise.resolve()),
+        result: Promise.resolve(mockResult),
       };
 
       const task = manager.registerTask('echo test', '/tmp', mockHandle);
@@ -144,18 +149,18 @@ describe('BackgroundTaskManager', () => {
     });
 
     it('should update task status when command fails', async () => {
+      const mockResult: ShellExecutionResult = {
+        output: '',
+        exitCode: 1,
+        signal: null,
+        error: new Error('Command failed'),
+        aborted: false,
+      };
       const mockHandle: ShellExecutionHandle = {
         pid: 12345,
-        result: Promise.resolve({
-          rawOutput: Buffer.from(''),
-          output: '',
-          exitCode: 1,
-          signal: null,
-          error: new Error('Command failed'),
-          aborted: false,
-          pid: 12345,
-          executionMethod: 'child_process',
-        }),
+        process: {} as ChildProcess,
+        kill: jest.fn(() => Promise.resolve()),
+        result: Promise.resolve(mockResult),
       };
 
       const task = manager.registerTask('failing-cmd', '/tmp', mockHandle);
@@ -171,18 +176,18 @@ describe('BackgroundTaskManager', () => {
 
   describe('getTask', () => {
     it('should return task by ID', () => {
+      const mockResult: ShellExecutionResult = {
+        output: '',
+        exitCode: 0,
+        signal: null,
+        error: undefined,
+        aborted: false,
+      };
       const mockHandle: ShellExecutionHandle = {
         pid: 12345,
-        result: Promise.resolve({
-          rawOutput: Buffer.from(''),
-          output: '',
-          exitCode: 0,
-          signal: null,
-          error: null,
-          aborted: false,
-          pid: 12345,
-          executionMethod: 'child_process',
-        }),
+        process: {} as ChildProcess,
+        kill: jest.fn(() => Promise.resolve()),
+        result: Promise.resolve(mockResult),
       };
 
       const task = manager.registerTask('echo test', '/tmp', mockHandle);
@@ -198,20 +203,20 @@ describe('BackgroundTaskManager', () => {
   });
 
   describe('getOutput', () => {
-    it('should return all output when fromPosition is 0', () => {
-      const mockHandle: ShellExecutionHandle = {
-        pid: 12345,
-        result: Promise.resolve({
-          rawOutput: Buffer.from(''),
-          output: '',
-          exitCode: 0,
-          signal: null,
-          error: null,
-          aborted: false,
-          pid: 12345,
-          executionMethod: 'child_process',
-        }),
-      };
+          it('should return all output when fromPosition is 0', () => {
+            const mockHandle: ShellExecutionHandle = {
+              pid: 12345,
+              process: {} as ChildProcess,
+              kill: jest.fn(() => Promise.resolve()),
+              result: Promise.resolve({
+                output: '',
+                exitCode: 0,
+                signal: null,
+                error: undefined,
+                aborted: false,
+                pid: 12345,
+              }),
+            };
 
       const task = manager.registerTask('echo test', '/tmp', mockHandle);
 
@@ -223,20 +228,20 @@ describe('BackgroundTaskManager', () => {
       expect(output).toEqual(['line 1', 'line 2', 'line 3']);
     });
 
-    it('should return only new output when fromPosition > 0', () => {
-      const mockHandle: ShellExecutionHandle = {
-        pid: 12345,
-        result: Promise.resolve({
-          rawOutput: Buffer.from(''),
-          output: '',
-          exitCode: 0,
-          signal: null,
-          error: null,
-          aborted: false,
-          pid: 12345,
-          executionMethod: 'child_process',
-        }),
-      };
+          it('should return only new output when fromPosition > 0', () => {
+            const mockHandle: ShellExecutionHandle = {
+              pid: 12345,
+              process: {} as ChildProcess,
+              kill: jest.fn(() => Promise.resolve()),
+              result: Promise.resolve({
+                output: '',
+                exitCode: 0,
+                signal: null,
+                error: undefined,
+                aborted: false,
+                pid: 12345,
+              }),
+            };
 
       const task = manager.registerTask('echo test', '/tmp', mockHandle);
 
@@ -256,15 +261,15 @@ describe('BackgroundTaskManager', () => {
     it('should handle empty output', () => {
       const mockHandle: ShellExecutionHandle = {
         pid: 12345,
+        process: {} as ChildProcess,
+        kill: jest.fn(() => Promise.resolve()),
         result: Promise.resolve({
-          rawOutput: Buffer.from(''),
           output: '',
           exitCode: 0,
           signal: null,
-          error: null,
+          error: undefined,
           aborted: false,
           pid: 12345,
-          executionMethod: 'child_process',
         }),
       };
 
@@ -277,18 +282,18 @@ describe('BackgroundTaskManager', () => {
 
   describe('appendOutput', () => {
     it('should append output to task buffer', () => {
+      const mockResult: ShellExecutionResult = {
+        output: '',
+        exitCode: 0,
+        signal: null,
+        error: undefined,
+        aborted: false,
+      };
       const mockHandle: ShellExecutionHandle = {
         pid: 12345,
-        result: Promise.resolve({
-          rawOutput: Buffer.from(''),
-          output: '',
-          exitCode: 0,
-          signal: null,
-          error: null,
-          aborted: false,
-          pid: 12345,
-          executionMethod: 'child_process',
-        }),
+        process: {} as ChildProcess,
+        kill: jest.fn(() => Promise.resolve()),
+        result: Promise.resolve(mockResult),
       };
 
       const task = manager.registerTask('echo test', '/tmp', mockHandle);
@@ -306,18 +311,18 @@ describe('BackgroundTaskManager', () => {
     });
 
     it('should respect maxBufferLines limit', () => {
+      const mockResult: ShellExecutionResult = {
+        output: '',
+        exitCode: 0,
+        signal: null,
+        error: undefined,
+        aborted: false,
+      };
       const mockHandle: ShellExecutionHandle = {
         pid: 12345,
-        result: Promise.resolve({
-          rawOutput: Buffer.from(''),
-          output: '',
-          exitCode: 0,
-          signal: null,
-          error: null,
-          aborted: false,
-          pid: 12345,
-          executionMethod: 'child_process',
-        }),
+        process: {} as ChildProcess,
+        kill: jest.fn(() => Promise.resolve()),
+        result: Promise.resolve(mockResult),
       };
 
       const task = manager.registerTask('echo test', '/tmp', mockHandle);
@@ -342,6 +347,8 @@ describe('BackgroundTaskManager', () => {
 
       const mockHandle: ShellExecutionHandle = {
         pid: 12345,
+        process: {} as ChildProcess,
+        kill: jest.fn(() => Promise.resolve()),
         result: new Promise(() => {}), // Never resolves
       };
 
@@ -364,18 +371,18 @@ describe('BackgroundTaskManager', () => {
     });
 
     it('should return false for already completed task', async () => {
+      const mockResult: ShellExecutionResult = {
+        output: '',
+        exitCode: 0,
+        signal: null,
+        error: undefined,
+        aborted: false,
+      };
       const mockHandle: ShellExecutionHandle = {
         pid: 12345,
-        result: Promise.resolve({
-          rawOutput: Buffer.from(''),
-          output: '',
-          exitCode: 0,
-          signal: null,
-          error: null,
-          aborted: false,
-          pid: 12345,
-          executionMethod: 'child_process',
-        }),
+        process: {} as ChildProcess,
+        kill: jest.fn(() => Promise.resolve()),
+        result: Promise.resolve(mockResult),
       };
 
       const task = manager.registerTask('echo test', '/tmp', mockHandle);
@@ -399,6 +406,8 @@ describe('BackgroundTaskManager', () => {
 
       const mockHandle: ShellExecutionHandle = {
         pid: 12345,
+        process: {} as ChildProcess,
+        kill: jest.fn(() => Promise.resolve()),
         result: new Promise(() => {}),
       };
 
@@ -408,7 +417,7 @@ describe('BackgroundTaskManager', () => {
 
       // Should eventually call SIGKILL
       const killCalls = killSpy.mock.calls;
-      const hasSigkill = killCalls.some((call) => call[1] === 'SIGKILL');
+      const hasSigkill = killCalls.some((call: [number, string | number | undefined]) => call[1] === 'SIGKILL');
       expect(hasSigkill).toBe(true);
 
       killSpy.mockRestore();
@@ -417,32 +426,32 @@ describe('BackgroundTaskManager', () => {
 
   describe('listTasks', () => {
     it('should return all tasks', () => {
+      const mockResult1: ShellExecutionResult = {
+        output: '',
+        exitCode: 0,
+        signal: null,
+        error: undefined,
+        aborted: false,
+      };
       const mockHandle1: ShellExecutionHandle = {
         pid: 111,
-        result: Promise.resolve({
-          rawOutput: Buffer.from(''),
-          output: '',
-          exitCode: 0,
-          signal: null,
-          error: null,
-          aborted: false,
-          pid: 111,
-          executionMethod: 'child_process',
-        }),
+        process: {} as ChildProcess,
+        kill: jest.fn(() => Promise.resolve()),
+        result: Promise.resolve(mockResult1),
       };
 
+      const mockResult2: ShellExecutionResult = {
+        output: '',
+        exitCode: 0,
+        signal: null,
+        error: undefined,
+        aborted: false,
+      };
       const mockHandle2: ShellExecutionHandle = {
         pid: 222,
-        result: Promise.resolve({
-          rawOutput: Buffer.from(''),
-          output: '',
-          exitCode: 0,
-          signal: null,
-          error: null,
-          aborted: false,
-          pid: 222,
-          executionMethod: 'child_process',
-        }),
+        process: {} as ChildProcess,
+        kill: jest.fn(() => Promise.resolve()),
+        result: Promise.resolve(mockResult2),
       };
 
       manager.registerTask('cmd1', '/tmp', mockHandle1);
@@ -460,21 +469,23 @@ describe('BackgroundTaskManager', () => {
     it('should filter tasks by status', async () => {
       const mockHandle1: ShellExecutionHandle = {
         pid: 111,
+        process: {} as ChildProcess,
+        kill: jest.fn(() => Promise.resolve()),
         result: new Promise(() => {}), // Never resolves - stays running
       };
 
+      const mockResult2: ShellExecutionResult = {
+        output: '',
+        exitCode: 0,
+        signal: null,
+        error: undefined,
+        aborted: false,
+      };
       const mockHandle2: ShellExecutionHandle = {
         pid: 222,
-        result: Promise.resolve({
-          rawOutput: Buffer.from(''),
-          output: '',
-          exitCode: 0,
-          signal: null,
-          error: null,
-          aborted: false,
-          pid: 222,
-          executionMethod: 'child_process',
-        }),
+        process: {} as ChildProcess,
+        kill: jest.fn(() => Promise.resolve()),
+        result: Promise.resolve(mockResult2),
       };
 
       manager.registerTask('running-cmd', '/tmp', mockHandle1);
@@ -496,18 +507,18 @@ describe('BackgroundTaskManager', () => {
 
   describe('removeTask', () => {
     it('should remove task from manager', () => {
+      const mockResult: ShellExecutionResult = {
+        output: '',
+        exitCode: 0,
+        signal: null,
+        error: undefined,
+        aborted: false,
+      };
       const mockHandle: ShellExecutionHandle = {
         pid: 12345,
-        result: Promise.resolve({
-          rawOutput: Buffer.from(''),
-          output: '',
-          exitCode: 0,
-          signal: null,
-          error: null,
-          aborted: false,
-          pid: 12345,
-          executionMethod: 'child_process',
-        }),
+        process: {} as ChildProcess,
+        kill: jest.fn(() => Promise.resolve()),
+        result: Promise.resolve(mockResult),
       };
 
       const task = manager.registerTask('echo test', '/tmp', mockHandle);
@@ -527,18 +538,18 @@ describe('BackgroundTaskManager', () => {
 
   describe('cleanup', () => {
     it('should remove completed tasks older than threshold', async () => {
+      const mockResult: ShellExecutionResult = {
+        output: '',
+        exitCode: 0,
+        signal: null,
+        error: undefined,
+        aborted: false,
+      };
       const mockHandle: ShellExecutionHandle = {
         pid: 12345,
-        result: Promise.resolve({
-          rawOutput: Buffer.from(''),
-          output: '',
-          exitCode: 0,
-          signal: null,
-          error: null,
-          aborted: false,
-          pid: 12345,
-          executionMethod: 'child_process',
-        }),
+        process: {} as ChildProcess,
+        kill: jest.fn(() => Promise.resolve()),
+        result: Promise.resolve(mockResult),
       };
 
       const task = manager.registerTask('echo test', '/tmp', mockHandle);
@@ -563,6 +574,8 @@ describe('BackgroundTaskManager', () => {
     it('should keep running tasks', async () => {
       const mockHandle: ShellExecutionHandle = {
         pid: 12345,
+        process: {} as ChildProcess,
+        kill: jest.fn(() => Promise.resolve()),
         result: new Promise(() => {}), // Never completes
       };
 
@@ -589,11 +602,15 @@ describe('BackgroundTaskManager', () => {
 
       const mockHandle1: ShellExecutionHandle = {
         pid: 111,
+        process: {} as ChildProcess,
+        kill: jest.fn(() => Promise.resolve()),
         result: new Promise(() => {}),
       };
 
       const mockHandle2: ShellExecutionHandle = {
         pid: 222,
+        process: {} as ChildProcess,
+        kill: jest.fn(() => Promise.resolve()),
         result: new Promise(() => {}),
       };
 
