@@ -161,7 +161,6 @@ export class GeminiWrapper extends BaseWrapper {
 
     this.geminiProcess.on('exit', (code, signal) => {
       console.log(`Gemini CLI exited with code ${code} and signal ${signal}`);
-      process.stdin.removeListener('data', stdinHandler);
     });
   }
 
