@@ -1,6 +1,6 @@
 {
   "name": "@jimmyliao/leapcode-core",
-  "version": "0.3.0-beta.1",
+  "version": "0.3.0",
   "description": "LeapCode Core - Shared types and utilities",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

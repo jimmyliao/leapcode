@@ -1,6 +1,6 @@
 {
   "name": "@jimmyliao/leapcode-monorepo",
-  "version": "0.3.0-beta.1",
+  "version": "0.3.0",
   "private": true,
   "description": "LeapCode Monorepo - Multi-AI coding CLI wrapper ecosystem",
   "author": "Jimmy Liao <jimmyliao@jimmyliao.net>",
