@@ -1,16 +1,6 @@
 {
-  "required": {
-    "minVersion": "2.1.0",
-    "branch": "feature/background-tasks",
-    "commit": "13106-background-tasks"
-  },
-  "features": {
-    "backgroundTasks": true,
-    "gracefulDegradation": true,
-    "versionTracking": true
-  },
-  "description": "Background task execution support with output buffering and process management",
-  "releaseDate": "2025-11-15",
-  "leapcodeSupportedVersions": ["0.3.0", "0.3.x"],
-  "compatibilityNotes": "If gemini-cli version < 2.1.0, background tasks will be automatically disabled"
+  "requiredVersion": ">=0.17.0",
+  "currentVersion": "0.17.0-nightly.20251114.0fcbff506",
+  "supportBackgroundTasks": true,
+  "commit": "latest"
 }
