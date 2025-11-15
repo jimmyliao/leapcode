@@ -1,0 +1,7 @@
+{
+  "requiredVersion": ">=0.15.2",
+  "currentVersion": "0.15.2",
+  "supportBackgroundTasks": true,
+  "commit": "latest",
+  "notes": "LeapCode v0.3.0 supports background tasks independently of gemini-cli version"
+}

@@ -1,13 +1,14 @@
 {
   "name": "@jimmyliao/leapcode-core",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "LeapCode Core - Shared types and utilities",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "test": "jest"
   },
   "keywords": [
     "leapcode",
@@ -25,8 +26,15 @@
   "publishConfig": {
     "access": "public"
   },
+  "dependencies": {
+    "semver": "^7.6.2"
+  },
   "devDependencies": {
+    "@types/jest": "^29.5.12",
     "@types/node": "^20.11.0",
+    "@types/semver": "^7.5.8",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.2",
     "typescript": "^5.3.0"
   }
 }

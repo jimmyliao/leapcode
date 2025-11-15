@@ -49,7 +49,7 @@ export const WS_EVENTS = {
  */
 export const APP_META = {
   NAME: 'LeapCode',
-  VERSION: '0.2.0',
+  VERSION: '0.3.0',
   DESCRIPTION: 'Multi-AI coding CLI wrapper',
   AUTHOR: 'Jimmy Liao',
 } as const;

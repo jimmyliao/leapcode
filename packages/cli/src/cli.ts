@@ -11,12 +11,13 @@
 
 import { Command } from 'commander';
 import chalk from 'chalk';
-import { APP_META } from '@jimmyliao/leapcode-core';
+import { APP_META, getBackgroundTaskManager, ShellExecutionAdapter } from '@jimmyliao/leapcode-core';
 import { GeminiWrapper } from './wrappers/gemini';
 import { ClaudeWrapper } from './wrappers/claude';
 import { CodexWrapper } from './wrappers/codex';
 import dotenv from 'dotenv';
 import { ConfigManager } from './config/manager'; // Import ConfigManager
+import { spawn } from 'child_process';
 
 // Load environment variables
 dotenv.config();
@@ -160,6 +161,82 @@ program
       console.error(chalk.red('\n❌ Error:'), error instanceof Error ? error.message : error);
       process.exit(1);
     }
+  });
+
+// Background task command
+program
+  .command('run <command>')
+  .option('-d, --detach', 'Run in background (returns immediately with task ID)')
+  .description('Run a shell command')
+  .action(async (command: string, options) => {
+    try {
+      if (options.detach) {
+        // Run in background
+        console.log(chalk.cyan(`🚀 Running background task: ${command}`));
+
+        const taskManager = getBackgroundTaskManager();
+        const child = spawn('sh', ['-c', command], {
+          stdio: ['pipe', 'pipe', 'pipe'],
+          cwd: process.cwd(),
+        });
+
+        const handle = new ShellExecutionAdapter(child);
+        const task = taskManager.registerTask(command, process.cwd(), handle);
+
+        console.log(chalk.green(`✅ Background task registered`));
+        console.log(chalk.gray(`   Task ID: ${task.id}`));
+        console.log(chalk.gray(`   PID: ${task.pid}`));
+        console.log(chalk.gray(`   Status: ${task.status}`));
+        console.log(chalk.cyan(`\nUse 'leapcode task <id>' to check status`));
+      } else {
+        // Run in foreground
+        console.log(chalk.cyan(`🚀 Running: ${command}`));
+
+        const child = spawn('sh', ['-c', command], {
+          stdio: 'inherit',
+          cwd: process.cwd(),
+        });
+
+        const exitCode = await new Promise<number>((resolve) => {
+          child.on('close', (code) => resolve(code || 0));
+        });
+
+        if (exitCode === 0) {
+          console.log(chalk.green('\n✅ Command completed successfully'));
+        } else {
+          console.log(chalk.red(`\n❌ Command failed with exit code: ${exitCode}`));
+          process.exit(exitCode);
+        }
+      }
+    } catch (error) {
+      console.error(chalk.red('❌ Error:'), error instanceof Error ? error.message : error);
+      process.exit(1);
+    }
+  });
+
+// Task list command
+program
+  .command('task')
+  .description('Manage background tasks')
+  .action(() => {
+    const taskManager = getBackgroundTaskManager();
+    const tasks = taskManager.listTasks();
+
+    if (tasks.length === 0) {
+      console.log(chalk.yellow('No background tasks'));
+      return;
+    }
+
+    console.log(chalk.cyan('Background Tasks:'));
+    console.log('━'.repeat(80));
+    tasks.forEach(task => {
+      console.log(`ID: ${chalk.blue(task.id)}`);
+      console.log(`  Command: ${task.command}`);
+      console.log(`  PID: ${task.pid}`);
+      console.log(`  Status: ${task.status === 'running' ? chalk.green(task.status) : chalk.yellow(task.status)}`);
+      console.log(`  Created: ${task.startTime.toISOString()}`);
+      console.log('');
+    });
   });
 
 // Config command
