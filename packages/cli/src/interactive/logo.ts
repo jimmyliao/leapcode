@@ -1,4 +1,3 @@
-
 import chalk from 'chalk';
 import { getTerminalWidth } from './ui';
 
@@ -11,12 +10,11 @@ const LEAPCODE_BLUE = '#4169E1';
  */
 function getLogoArt(): string {
   const logoLines = [
-    ' _                     _       _',
-    '| |    ___  __ _ _ __ | | ___ | |__   ___  _ __',
-    '| |   / _ \\/ _` | \'_ \\| |/ _ \\| \'_ \\ / _ \\| \'__|',
-    '| |__|  __/ (_| | |_) | | (_) | |_) | (_) | |',
-    '|_____\\___\\\\_\\_,_| .__/|_|\\___/|_.__/ \\___/|_|',
-    '               |_|',
+    '   __       ___    _    ____  ____   ___  ____  ____',
+    '  / /      / _ \\  / \\  |  _ \\/ ___| / _ \\|  _ \\| __ )',
+    ' / /      | | | |/ _ \\ | |_) \\___ \\| | | | | | |  _ \\',
+    '/ /___    | |_| / ___ \\|  __/ ___) | |_| | |_| | __ \\',
+    '\\____/     \\___/_/   \\_\\_|   |____/ \\___/|____/|____/',
   ];
 
   const colorizedLogo = logoLines.map((line, index) => {
@@ -51,19 +49,18 @@ function interpolateColor(color1: string, color2: string, factor: number): strin
   return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
 }
 
-
 /**
  * Centers a block of text within the terminal width.
  * @param text The block of text to center.
  * @returns The centered text block.
  */
 function centerBlock(text: string): string {
-    const width = getTerminalWidth();
-    const lines = text.split('\n');
-    const longestLineLength = Math.max(...lines.map(line => line.replace(/\u001b\[[0-9;]*m/g, '').length));
-    const padding = Math.max(0, Math.floor((width - longestLineLength) / 2));
-    const paddingStr = ' '.repeat(padding);
-    return lines.map(line => paddingStr + line).join('\n');
+  const width = getTerminalWidth();
+  const lines = text.split('\n');
+  const longestLineLength = Math.max(...lines.map(line => line.replace(/\u001b\[[0-9;]*m/g, '').length));
+  const padding = Math.max(0, Math.floor((width - longestLineLength) / 2));
+  const paddingStr = ' '.repeat(padding);
+  return lines.map(line => paddingStr + line).join('\n');
 }
 
 /**
