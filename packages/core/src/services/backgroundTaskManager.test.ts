@@ -281,20 +281,20 @@ describe('BackgroundTaskManager', () => {
   });
 
   describe('appendOutput', () => {
-    it('should append output to task buffer', () => {
-      const mockResult: ShellExecutionResult = {
-        output: '',
-        exitCode: 0,
-        signal: null,
-        error: undefined,
-        aborted: false,
-      };
-      const mockHandle: ShellExecutionHandle = {
-        pid: 12345,
-        process: {} as ChildProcess,
-        kill: jest.fn(() => Promise.resolve()),
-        result: Promise.resolve(mockResult),
-      };
+          it('should append output to task buffer', () => {
+            const mockHandle: ShellExecutionHandle = {
+              pid: 12345,
+              process: {} as ChildProcess,
+              kill: jest.fn(() => Promise.resolve()),
+              result: Promise.resolve({
+                output: '',
+                exitCode: 0,
+                signal: null,
+                error: undefined,
+                aborted: false,
+                pid: 12345,
+              }),
+            };
 
       const task = manager.registerTask('echo test', '/tmp', mockHandle);
 
@@ -310,20 +310,20 @@ describe('BackgroundTaskManager', () => {
       expect(success).toBe(false);
     });
 
-    it('should respect maxBufferLines limit', () => {
-      const mockResult: ShellExecutionResult = {
-        output: '',
-        exitCode: 0,
-        signal: null,
-        error: undefined,
-        aborted: false,
-      };
-      const mockHandle: ShellExecutionHandle = {
-        pid: 12345,
-        process: {} as ChildProcess,
-        kill: jest.fn(() => Promise.resolve()),
-        result: Promise.resolve(mockResult),
-      };
+          it('should respect maxBufferLines limit', () => {
+            const mockHandle: ShellExecutionHandle = {
+              pid: 12345,
+              process: {} as ChildProcess,
+              kill: jest.fn(() => Promise.resolve()),
+              result: Promise.resolve({
+                output: '',
+                exitCode: 0,
+                signal: null,
+                error: undefined,
+                aborted: false,
+                pid: 12345,
+              }),
+            };
 
       const task = manager.registerTask('echo test', '/tmp', mockHandle);
 
