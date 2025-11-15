@@ -147,14 +147,8 @@ export class GeminiWrapper extends BaseWrapper {
     // Spawn Gemini CLI process
     this.geminiProcess = spawn('gemini', args, {
       env,
-      stdio: ['pipe', 'pipe', 'pipe'], // stdin, stdout, stderr all piped
+      stdio: 'inherit', // Inherit parent's stdio for interactive mode
     });
-
-    // Proxy stdin to the child process
-    const stdinHandler = (data: Buffer) => {
-      this.geminiProcess?.stdin?.write(data);
-    };
-    process.stdin.on('data', stdinHandler);
 
     // Setup I/O handlers
     this.setupIOHandlers();
