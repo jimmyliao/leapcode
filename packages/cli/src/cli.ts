@@ -18,6 +18,7 @@ import { CodexWrapper } from './wrappers/codex';
 import dotenv from 'dotenv';
 import { ConfigManager } from './config/manager'; // Import ConfigManager
 import { spawn } from 'child_process';
+import { startInteractiveMode } from './interactive/repl';
 
 // Load environment variables
 dotenv.config();
@@ -86,13 +87,18 @@ program
   .description(APP_META.DESCRIPTION)
   .version(APP_META.VERSION);
 
-// Main command - start Gemini CLI (default)
+// Main command - start interactive mode or wrap an AI tool
 program
-  .argument('[aiTool]', 'AI tool to wrap (currently: gemini | planned: claude, codex)', 'gemini')
+  .argument('[command]', 'AI tool to wrap (gemini, claude, codex). If omitted, starts interactive mode.', 'interactive')
   .option('-s, --server <url>', 'LeapCode server URL')
   .option('--offline', 'Run without mobile sync')
   .option('--api-key <key>', 'AI API key (or use environment variable)')
-  .action(async (aiTool: string, options) => {
+  .action(async (command: string, options) => {
+    if (command.toLowerCase() === 'interactive') {
+      startInteractiveMode(APP_META.VERSION);
+      return;
+    }
+    
     await runPrerequisiteChecks(); // Call prerequisite checks here
 
     console.log(chalk.cyan.bold(`\n🚀 ${APP_META.NAME} CLI v${APP_META.VERSION}`));
@@ -104,7 +110,7 @@ program
     };
 
     try {
-      switch (aiTool.toLowerCase()) {
+      switch (command.toLowerCase()) {
         case 'gemini':
           console.log(chalk.green('Starting Gemini CLI wrapper...'));
           const geminiApiKey = getApiKey('gemini', options.apiKey, 'GEMINI_API_KEY');
@@ -152,7 +158,7 @@ program
           break;
 
         default:
-          console.log(chalk.red(`❌ Unknown AI tool: ${aiTool}`));
+          console.log(chalk.red(`❌ Unknown AI tool: ${command}`));
           console.log(chalk.cyan('\n   Currently available: gemini'));
           console.log(chalk.gray('   Planned: claude, codex'));
           process.exit(1);
